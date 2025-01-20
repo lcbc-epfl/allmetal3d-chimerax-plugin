@@ -484,8 +484,10 @@ class AllMetal3D(ToolInstance):
             if not server_url:
                 raise UserError("No server URL given")
             server = server_url
+            api_name = "/predict"
         else:
             server = "simonduerr/allmetal3d"
+            api_name = "/predict_zero_gpu"
 
         try:
             client = Client(server)
@@ -510,7 +512,7 @@ class AllMetal3D(ToolInstance):
             str(self.dropdown_mode.currentText()),
             resid,
             float(residue_around),
-            api_name="/predict",
+            api_name=api_name,
             result_callbacks=[self._result_callback],
         )
         self.session.logger.status("AllMetal3D/Water3D job submitted, running")

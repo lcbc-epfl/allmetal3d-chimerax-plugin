@@ -6,20 +6,18 @@ will be displayed without the ChimeraX- prefix.
 -->
 
 <BundleInfo name="ChimeraX-AllMetal3D"
-	    version="0.2" package="chimerax.allmetal3d"
+	    version="0.3" package="chimerax.allmetal3d"
   	    minSessionVersion="1" maxSessionVersion="1">
 
   <!-- Additional information about bundle source -->
-  <Author>UCSF RBVI</Author>
-  <Email>chimerax@cgl.ucsf.edu</Email>
-  <URL>https://www.rbvi.ucsf.edu/chimerax/</URL>
+  <Author>Simon Dürr</Author>
+  <Email>dev@simonduerr.eu</Email>
+  <URL>https://simonduerr.eu</URL>
 
   <!-- Synopsis is a one-line description
        Description is a full multi-line description -->
-  <Synopsis>Example for adding a graphical interface tool</Synopsis>
-  <Description>Example code for implementing ChimeraX bundle.
-
-Implements tool "AllMetal3D/Water3D" to log typed user input.
+  <Synopsis>AllMetal3D: Predict metal and water binding sites in proteins</Synopsis>
+  <Description> AllMetal3D uses 3DCNN to predict metal and water binding sites in proteins.
   </Description>
 
   <!-- Categories is a list where this bundle should appear -->
@@ -37,11 +35,7 @@ Implements tool "AllMetal3D/Water3D" to log typed user input.
     <Dependency name="gradio_client" version="~=0.11.0" />
   </Dependencies>
 
-  <!-- Non-Python files that are part of package -->
-  <DataFiles>
-    <DataFile>docs/user/tools/tutorial.html</DataFile>
-  </DataFiles>
-
+  
   <Classifiers>
     <!-- Development Status should be compatible with bundle version number -->
     <PythonClassifier>Development Status :: 3 - Alpha</PythonClassifier>
@@ -49,7 +43,7 @@ Implements tool "AllMetal3D/Water3D" to log typed user input.
     <!-- ChimeraX classifiers describe supplied functionality -->
     <!-- Register a graphical interface tool -->
     <ChimeraXClassifier>ChimeraX :: Tool :: AllMetal3D/Water3D ::
-      Structure Prediction :: Graphical interface example</ChimeraXClassifier>
+      Structure Prediction :: AllMetal3D/Water3D </ChimeraXClassifier>
   </Classifiers>
 
 </BundleInfo>
