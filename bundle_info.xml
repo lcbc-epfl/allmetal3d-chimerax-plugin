@@ -6,7 +6,7 @@ will be displayed without the ChimeraX- prefix.
 -->
 
 <BundleInfo name="ChimeraX-AllMetal3D"
-	    version="0.3" package="chimerax.allmetal3d"
+	    version="0.4" package="chimerax.allmetal3d"
   	    minSessionVersion="1" maxSessionVersion="1">
 
   <!-- Additional information about bundle source -->
@@ -23,6 +23,7 @@ will be displayed without the ChimeraX- prefix.
   <!-- Categories is a list where this bundle should appear -->
   <Categories>
     <Category name="Structure Prediction"/>
+    <Category name="Binding Analysis"/>
   </Categories>
 
   <!-- Dependencies on other ChimeraX/Python packages -->
@@ -43,7 +44,7 @@ will be displayed without the ChimeraX- prefix.
     <!-- ChimeraX classifiers describe supplied functionality -->
     <!-- Register a graphical interface tool -->
     <ChimeraXClassifier>ChimeraX :: Tool :: AllMetal3D/Water3D ::
-      Structure Prediction :: AllMetal3D/Water3D </ChimeraXClassifier>
+      Binding Analysis, Structure Prediction :: AllMetal3D/Water3D </ChimeraXClassifier>
   </Classifiers>
 
 </BundleInfo>

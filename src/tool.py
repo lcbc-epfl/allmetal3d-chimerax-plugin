@@ -5,7 +5,7 @@ from chimerax.core.tools import ToolInstance
 from chimerax.atomic.structure import selected_residues
 
 
-from PyQt6.QtWidgets import (
+from Qt.QtWidgets import (
     QHBoxLayout,
     QWidget,
     QTabWidget,
@@ -41,7 +41,7 @@ class AllMetal3D(ToolInstance):
         self.tool_window = MainToolWindow(self)
         parent = self.tool_window.ui_area
 
-        from PyQt6.QtWidgets import (
+        from Qt.QtWidgets import (
             QLabel,
             QLineEdit,
             QHBoxLayout,
@@ -51,7 +51,7 @@ class AllMetal3D(ToolInstance):
             QPushButton,
             QSpinBox,
         )
-        from PyQt6.QtCore import Qt
+        from Qt.QtCore import Qt as QtCoreQt
 
         layout = QVBoxLayout()
         layout.setContentsMargins(5, 5, 5, 5)
@@ -71,7 +71,7 @@ class AllMetal3D(ToolInstance):
         input_struc_label = QLabel("Input structure:")
         layout.addWidget(input_struc_label)
         self.structure_list = ShortASList(self.session)
-        layout.addWidget(self.structure_list, alignment=Qt.AlignLeft)
+        layout.addWidget(self.structure_list, alignment=QtCoreQt.AlignLeft)
 
         ressource_label = QLabel("Resources to use:")
         self.ressource = QComboBox()
@@ -166,7 +166,7 @@ class AllMetal3D(ToolInstance):
         layout.addWidget(dropdown_modelstorun_label)
         layout.addWidget(self.dropdown_modelstorun)
 
-        from PyQt6.QtWidgets import QDialogButtonBox as qbbox
+        from Qt.QtWidgets import QDialogButtonBox as qbbox
 
         bbox = qbbox(qbbox.Ok | qbbox.Cancel)
         bbox.accepted.connect(self.predict)
@@ -242,13 +242,13 @@ class AllMetal3D(ToolInstance):
     def _build_loadingscreen(self):
         from chimerax.ui import MainToolWindow
         from chimerax.ui.widgets import Citation
-        from PyQt6.QtCore import Qt
-        from PyQt6.QtWidgets import (
+        from Qt.QtCore import Qt as QtCoreQt
+        from Qt.QtWidgets import (
             QHBoxLayout,
             QVBoxLayout,
         )
-        from PyQt6.QtWidgets import QLabel
-        from PyQt6.QtCore import QTimer
+        from Qt.QtWidgets import QLabel
+        from Qt.QtCore import QTimer
 
         self.tool_window_loading = tw = MainToolWindow(self, close_destroys=False)
         parent = tw.ui_area
@@ -259,7 +259,7 @@ class AllMetal3D(ToolInstance):
         parent.setLayout(layout)
 
         self.label = QLabel("Loading")
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setAlignment(QtCoreQt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.label)
 
         self.dots = ""
@@ -282,6 +282,7 @@ class AllMetal3D(ToolInstance):
         self.label.setText(f"Loading {self.dots}")
 
     def _build_resultui(self):
+        from Qt.QtCore import Qt as QtCoreQt
 
         old_models = self.session.models.list()
         old_models = [m.id[0] for m in old_models]
@@ -290,14 +291,13 @@ class AllMetal3D(ToolInstance):
         print(self.table_metals)
         from chimerax.ui import MainToolWindow
         from chimerax.ui.widgets import Citation
-        from PyQt6.QtCore import Qt
 
         # hide loading window
         self.tool_window_loading.destroy()
 
         self.tool_window = tw = MainToolWindow(self, close_destroys=False)
         parent = tw.ui_area
-        from PyQt6.QtWidgets import (
+        from Qt.QtWidgets import (
             QHBoxLayout,
             QVBoxLayout,
         )
@@ -320,7 +320,7 @@ class AllMetal3D(ToolInstance):
                 prefix="Publications using AllMetal3D results should cite:",
                 pubmed_id=0,
             ),
-            alignment=Qt.AlignCenter,
+            alignment=QtCoreQt.AlignCenter,
         )
         self.tool_window.fill_context_menu = self.fill_context_menu
 
