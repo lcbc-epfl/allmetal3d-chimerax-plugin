@@ -1,35 +1,20 @@
-<!--
-ChimeraX bundle names must start with "ChimeraX-"
-to avoid clashes with package names in pypi.python.org.
-When uploaded to the ChimeraX toolshed, the bundle
-will be displayed without the ChimeraX- prefix.
--->
 
 <BundleInfo name="ChimeraX-AllMetal3D"
-	    version="0.4" package="chimerax.allmetal3d"
+	    version="0.5" package="chimerax.allmetal3d"
   	    minSessionVersion="1" maxSessionVersion="1">
 
-  <!-- Additional information about bundle source -->
   <Author>Simon Dürr</Author>
   <Email>dev@simonduerr.eu</Email>
   <URL>https://simonduerr.eu</URL>
 
-  <!-- Synopsis is a one-line description
-       Description is a full multi-line description -->
   <Synopsis>AllMetal3D: Predict metal and water binding sites in proteins</Synopsis>
   <Description> AllMetal3D uses 3DCNN to predict metal and water binding sites in proteins.
   </Description>
-
-  <!-- Categories is a list where this bundle should appear -->
   <Categories>
     <Category name="Structure Prediction"/>
     <Category name="Binding Analysis"/>
   </Categories>
 
-  <!-- Dependencies on other ChimeraX/Python packages -->
-  <!-- This example uses functionality from the Tutorial_Command bundle -->
-      <!-- <Dependency name="moleculekit"/> -->
-    <!-- <Dependency name="torch"/> -->
   <Dependencies>
     <Dependency name="ChimeraX-Core" version="~=1.1"/>
     <Dependency name="ChimeraX-UI" version="~=1.0"/>
@@ -38,11 +23,8 @@ will be displayed without the ChimeraX- prefix.
 
   
   <Classifiers>
-    <!-- Development Status should be compatible with bundle version number -->
     <PythonClassifier>Development Status :: 3 - Alpha</PythonClassifier>
     <PythonClassifier>License :: Freeware</PythonClassifier>
-    <!-- ChimeraX classifiers describe supplied functionality -->
-    <!-- Register a graphical interface tool -->
     <ChimeraXClassifier>ChimeraX :: Tool :: AllMetal3D/Water3D ::
       Binding Analysis, Structure Prediction :: AllMetal3D/Water3D </ChimeraXClassifier>
   </Classifiers>

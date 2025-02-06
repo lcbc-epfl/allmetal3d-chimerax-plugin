@@ -336,125 +336,138 @@ class AllMetal3D(ToolInstance):
         results_json,
         water_json,
     ):
-        res = (
-            html,
-            metal_probe,
-            metal_cube,
-            water_probe,
-            water_cube,
-            results_json,
-            water_json,
-        )
-        from chimerax.core.commands import run
+        try:
+            res = (
+                html,
+                metal_probe,
+                metal_cube,
+                water_probe,
+                water_cube,
+                results_json,
+                water_json,
+            )
+            from chimerax.core.commands import run
 
-        structures_to_load = {
-            "metal_probes": {"model_spec": None, "color": None, "loaded": False},
-            "metal_cube": {"model_spec": None, "color": "#ffffff28", "loaded": False},
-            "water_probes": {"model_spec": None, "color": "red", "loaded": False},
-            "water_cube": {"model_spec": None, "color": "#00aaff28", "loaded": False},
-        }
+            structures_to_load = {
+                "metal_probes": {"model_spec": None, "color": None, "loaded": False},
+                "metal_cube": {
+                    "model_spec": None,
+                    "color": "#ffffff28",
+                    "loaded": False,
+                },
+                "water_probes": {"model_spec": None, "color": "red", "loaded": False},
+                "water_cube": {
+                    "model_spec": None,
+                    "color": "#00aaff28",
+                    "loaded": False,
+                },
+            }
 
-        from chimerax.atomic import structure
+            from chimerax.atomic import structure
 
-        old_models = self.session.models.list()
-        old_models = [m for m in old_models if isinstance(m, structure.AtomicStructure)]
-        old_models = [m.id[0] for m in old_models]
-        # sort models by id
-        old_models.sort()
+            old_models = self.session.models.list()
+            old_models = [
+                m for m in old_models if isinstance(m, structure.AtomicStructure)
+            ]
+            old_models = [m.id[0] for m in old_models]
+            # sort models by id
+            old_models.sort()
 
-        models = old_models
+            models = old_models
 
-        # get next model id that is not set, model ids might have gaps
-        def get_new_modelid(m_s, old_models):
-            while m_s in old_models:
-                m_s = m_s + 1
-            return m_s
+            # get next model id that is not set, model ids might have gaps
+            def get_new_modelid(m_s, old_models):
+                while m_s in old_models:
+                    m_s = m_s + 1
+                return m_s
 
-        m_s = 1
+            m_s = 1
 
-        for j, struc in enumerate(structures_to_load.keys()):
-            i = j + 1
+            for j, struc in enumerate(structures_to_load.keys()):
+                i = j + 1
 
-            # check if the file is visible
-            if not res[i]["visible"]:
-                continue
+                # check if the file is visible
+                if not res[i]["visible"]:
+                    continue
 
-            if "probes" in struc:
-                self.session.ui.thread_safe(
-                    run, self.session, f"open {res[i]['value']}"
-                )
+                if "probes" in struc:
+                    self.session.ui.thread_safe(
+                        run, self.session, f"open {res[i]['value']}"
+                    )
 
-                # m_s, old_models = get_new_modelid(self, old_models)
-                # print("models", old_models)
-                m_s = get_new_modelid(m_s, models)
-                models.append(m_s)
-                structures_to_load[struc]["model_spec"] = m_s
-                structures_to_load[struc]["loaded"] = True
-                if structures_to_load[struc]["color"] is not None:
+                    # m_s, old_models = get_new_modelid(self, old_models)
+                    # print("models", old_models)
+                    m_s = get_new_modelid(m_s, models)
+                    models.append(m_s)
+                    structures_to_load[struc]["model_spec"] = m_s
+                    structures_to_load[struc]["loaded"] = True
+                    if structures_to_load[struc]["color"] is not None:
+                        self.session.ui.thread_safe(
+                            run,
+                            self.session,
+                            f"color #{m_s} {structures_to_load[struc]['color']}",
+                        )
+                else:
+                    self.session.ui.thread_safe(
+                        run, self.session, f"open {res[i]['value']}"
+                    )
+                    structures_to_load[struc]["loaded"] = True
+                    m_s = get_new_modelid(m_s, models)
+                    models.append(m_s)
                     self.session.ui.thread_safe(
                         run,
                         self.session,
                         f"color #{m_s} {structures_to_load[struc]['color']}",
                     )
-            else:
-                self.session.ui.thread_safe(
-                    run, self.session, f"open {res[i]['value']}"
-                )
-                structures_to_load[struc]["loaded"] = True
-                m_s = get_new_modelid(m_s, models)
-                models.append(m_s)
-                self.session.ui.thread_safe(
-                    run,
-                    self.session,
-                    f"color #{m_s} {structures_to_load[struc]['color']}",
-                )
-                structures_to_load[struc]["model_spec"] = m_s
+                    structures_to_load[struc]["model_spec"] = m_s
 
-        self.table_metals = []
+            self.table_metals = []
 
-        if structures_to_load["metal_probes"]["loaded"]:
-            results_json = res[5]
+            if structures_to_load["metal_probes"]["loaded"]:
+                results_json = res[5]
 
-            for i, res in enumerate(results_json, start=1):
-                max_prob = max(res["probabilities_identity"])
-                max_index = res["probabilities_identity"].index(max_prob)
-                max_prob_geo = max(res["probabilities_geometry"])
-                max_index_geo = res["probabilities_geometry"].index(max_prob_geo)
-                labels = ["Alkali", "MG", "CA", "ZN", "NonZNTM", "NoMetal"]
-                labels_geometry = [
-                    "tetrahedron",
-                    "octahedron",
-                    "pentagonal bipyramid",
-                    "square",
-                    "irregular",
-                    "other",
-                    "NoMetal",
-                ]
-                self.table_metals.append(
-                    (
-                        f'#{structures_to_load["metal_probes"]["model_spec"]}',
-                        res["index"],
-                        res["location_confidence"],
-                        labels[max_index],
-                        max_prob,
-                        labels_geometry[max_index_geo],
-                        max_prob_geo,
+                for i, res in enumerate(results_json, start=1):
+                    max_prob = max(res["probabilities_identity"])
+                    max_index = res["probabilities_identity"].index(max_prob)
+                    max_prob_geo = max(res["probabilities_geometry"])
+                    max_index_geo = res["probabilities_geometry"].index(max_prob_geo)
+                    labels = ["Alkali", "MG", "CA", "ZN", "NonZNTM", "NoMetal"]
+                    labels_geometry = [
+                        "tetrahedron",
+                        "octahedron",
+                        "pentagonal bipyramid",
+                        "square",
+                        "irregular",
+                        "other",
+                        "NoMetal",
+                    ]
+                    self.table_metals.append(
+                        (
+                            f'#{structures_to_load["metal_probes"]["model_spec"]}',
+                            res["index"],
+                            res["location_confidence"],
+                            labels[max_index],
+                            max_prob,
+                            labels_geometry[max_index_geo],
+                            max_prob_geo,
+                        )
                     )
-                )
 
-        self.table_water = []
-        if structures_to_load["water_probes"]["loaded"]:
-            for i, res in enumerate(water_json, start=1):
-                self.table_water.append(
-                    (
-                        f'#{structures_to_load["water_probes"]["model_spec"]}',
-                        i,
-                        f"{res:.2f}",
+            self.table_water = []
+            if structures_to_load["water_probes"]["loaded"]:
+                for i, res in enumerate(water_json, start=1):
+                    self.table_water.append(
+                        (
+                            f'#{structures_to_load["water_probes"]["model_spec"]}',
+                            i,
+                            f"{res:.2f}",
+                        )
                     )
-                )
 
-        # build results ui in threadsafe mode
-        self.session.ui.thread_safe(self._build_resultui)
+            # build results ui in threadsafe mode
+            self.session.ui.thread_safe(self._build_resultui)
+        except ValueError as e:
+            raise UserError(str(e))
 
     def predict(self):
         from chimerax.core.commands import run
@@ -503,18 +516,21 @@ class AllMetal3D(ToolInstance):
             resid = [str(r.number) for r in residues]
             resid = " ".join(resid)
 
-        result = client.submit(
-            s[0].filename,
-            self.dropdown_modelstorun.currentText(),
-            float(self.probability_cutoff.value()),
-            float(self.clustering_threshold.value()),
-            50,
-            str(self.dropdown_mode.currentText()),
-            resid,
-            float(residue_around),
-            api_name=api_name,
-            result_callbacks=[self._result_callback],
-        )
+        try:
+            result = client.submit(
+                s[0].filename,
+                self.dropdown_modelstorun.currentText(),
+                float(self.probability_cutoff.value()),
+                float(self.clustering_threshold.value()),
+                50,
+                str(self.dropdown_mode.currentText()),
+                resid,
+                float(residue_around),
+                api_name=api_name,
+                result_callbacks=[self._result_callback],
+            )
+        except ValueError as e:
+            raise UserError(str(e))
         self.session.logger.status("AllMetal3D/Water3D job submitted, running")
         self._build_loadingscreen()
 
