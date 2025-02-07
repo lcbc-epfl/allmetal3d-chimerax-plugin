@@ -1,6 +1,6 @@
 
 <BundleInfo name="ChimeraX-AllMetal3D"
-	    version="0.5" package="chimerax.allmetal3d"
+	    version="0.8" package="chimerax.allmetal3d"
   	    minSessionVersion="1" maxSessionVersion="1">
 
   <Author>Simon Dürr</Author>

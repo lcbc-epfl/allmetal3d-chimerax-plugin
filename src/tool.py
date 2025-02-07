@@ -1,5 +1,9 @@
 import os
 
+import threading
+
+import time
+
 from chimerax.core.tools import ToolInstance
 
 from chimerax.atomic.structure import selected_residues
@@ -34,6 +38,29 @@ class AllMetal3D(ToolInstance):
         self.tab_widget = QTabWidget()
 
         self._build_dialogbox()
+
+    def _build_errorbox(self, error):
+        from chimerax.ui import MainToolWindow
+        from Qt.QtWidgets import QVBoxLayout, QLabel
+        from Qt.QtWidgets import QPushButton
+
+        self.tool_window_error = MainToolWindow(self)
+        parent = self.tool_window_error.ui_area
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(2, 2, 2, 2)
+        layout.setSpacing(0)
+        parent.setLayout(layout)
+
+        layout.addWidget(QLabel(error))
+        close_button = QPushButton("Close")
+
+        def close_error():
+            self.tool_window_error.shown = False
+
+        close_button.clicked.connect(close_error)
+        layout.addWidget(close_button)
+        self.tool_window_error.manage(None)
 
     def _build_dialogbox(self):
         from chimerax.ui import MainToolWindow
@@ -250,7 +277,7 @@ class AllMetal3D(ToolInstance):
         from Qt.QtWidgets import QLabel
         from Qt.QtCore import QTimer
 
-        self.tool_window_loading = tw = MainToolWindow(self, close_destroys=False)
+        self.tool_window_loading = tw = MainToolWindow(self, close_destroys=True)
         parent = tw.ui_area
 
         layout = QVBoxLayout()
@@ -282,20 +309,22 @@ class AllMetal3D(ToolInstance):
         self.label.setText(f"Loading {self.dots}")
 
     def _build_resultui(self):
+
         from Qt.QtCore import Qt as QtCoreQt
 
         old_models = self.session.models.list()
         old_models = [m.id[0] for m in old_models]
 
-        print("models", old_models)
-        print(self.table_metals)
+        # print("models", old_models)
+        # print(self.table_metals)
         from chimerax.ui import MainToolWindow
         from chimerax.ui.widgets import Citation
 
         # hide loading window
-        self.tool_window_loading.destroy()
+        self.tool_window_loading.shown = False
+        self.timer.stop()
 
-        self.tool_window = tw = MainToolWindow(self, close_destroys=False)
+        self.tool_window = tw = MainToolWindow(self, close_destroys=True)
         parent = tw.ui_area
         from Qt.QtWidgets import (
             QHBoxLayout,
@@ -466,7 +495,7 @@ class AllMetal3D(ToolInstance):
 
             # build results ui in threadsafe mode
             self.session.ui.thread_safe(self._build_resultui)
-        except ValueError as e:
+        except Exception as e:
             raise UserError(str(e))
 
     def predict(self):
@@ -488,8 +517,10 @@ class AllMetal3D(ToolInstance):
             resid = ""
             residue_around = 4
 
-        # close dialog
-        self.delete()
+        def close_toolwindow():
+            self.tool_window.shown = False
+
+        self.session.ui.thread_safe(close_toolwindow)
 
         server_url = self.server_url.text()
 
@@ -527,12 +558,27 @@ class AllMetal3D(ToolInstance):
                 resid,
                 float(residue_around),
                 api_name=api_name,
-                result_callbacks=[self._result_callback],
+                # result_callbacks=[self._result_callback],
             )
-        except ValueError as e:
+            self.session.logger.status("AllMetal3D/Water3D job submitted, running")
+            self._build_loadingscreen()
+
+            def wait_for_result(self, result):
+                while not result.done():
+                    time.sleep(1)
+                if result.exception():
+                    # raise ValueError(str(result.exception()))
+                    self.session.ui.thread_safe(
+                        self._build_errorbox, str(result.exception())
+                    )
+
+                    self.tool_window_loading.shown = False
+                else:
+                    self._result_callback(*result.result())
+
+            threading.Thread(target=wait_for_result, args=(self, result)).start()
+        except Exception as e:
             raise UserError(str(e))
-        self.session.logger.status("AllMetal3D/Water3D job submitted, running")
-        self._build_loadingscreen()
 
     def return_pressed(self):
         # The use has pressed the Return key; log the current text as HTML
@@ -542,13 +588,6 @@ class AllMetal3D(ToolInstance):
         run(self.session, "log html %s" % self.line_edit.text())
 
     def fill_context_menu(self, menu, x, y):
-        # Add any tool-specific items to the given context menu (a QMenu instance).
-        # The menu will then be automatically filled out with generic tool-related actions
-        # (e.g. Hide Tool, Help, Dockable Tool, etc.)
-        #
-        # The x,y args are the x() and y() values of QContextMenuEvent, in the rare case
-        # where the items put in the menu depends on where in the tool interface the menu
-        # was raised.
         from Qt.QtGui import QAction
         from chimerax.atomic import Residue
 
